@@ -204,6 +204,15 @@ class Board:
                 except ProcessLookupError:
                     pass
 
+    def archive(self, task_id, deleted):
+        if not isinstance(deleted,bool): raise ValueError('Invalid delete request.')
+        with self.lock:
+            task=self.find(task_id)
+            if task['review'] in ('running','queued'): raise ValueError('검수가 끝난 뒤 삭제하세요.')
+            task['deletedAt']=now() if deleted else None
+            self.save()
+        return task_id
+
     def rename(self, name):
         if not isinstance(name, str) or not name.strip() or len(name.strip()) > 80:
             raise ValueError('보드 이름은 1~80자로 입력하세요.')
@@ -277,6 +286,7 @@ class Board:
             t = self.find(task_id)
             if t['review'] in ('running', 'queued'):
                 raise ValueError('이미 검수 요청된 항목입니다.')
+            if t.get('deletedAt'): raise ValueError('휴지통에서 먼저 복원하세요.')
             if t.get('kind')=='note': raise ValueError('Convert this note to a task before reviewing.')
             if self.stopping:
                 raise ValueError('서버가 종료 중입니다.')

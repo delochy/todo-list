@@ -123,6 +123,13 @@ class Tests(unittest.TestCase):
         self.assertEqual(task['kind'],'task')
         self.assertEqual(task['note'],'Detailed idea')
         self.assertEqual(task['review'],'pending')
+    def test_delete_and_restore(self):
+        self.board.archive(self.task['id'],True)
+        self.assertTrue(self.task['deletedAt'])
+        with self.assertRaises(ValueError):self.board.review(self.task['id'])
+        self.board.archive(self.task['id'],False)
+        self.assertIsNone(self.task['deletedAt'])
+        self.assertTrue(self.art.exists())
     def test_scope_guards(self):
         for p in ['.','../outside','state']:
             with self.assertRaises(ValueError):self.board.add({'title':'x','criteria':['y'],'paths':[p]})

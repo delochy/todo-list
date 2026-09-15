@@ -97,21 +97,23 @@ function resultNode(result) {
 function render() {
   const root = $('tasks');
   const openKeys = new Set([...root.querySelectorAll('details[open]')].map(node => node.dataset.key));
-  const tasks=state.tasks.filter(task=>task.kind!=='note');
-  const counts = {all:tasks.length,ready:tasks.filter(ready).length,attention:tasks.filter(attention).length,complete:tasks.filter(task => task.review === 'complete').length,notes:state.tasks.filter(task=>task.kind==='note').length};
+  const tasks=state.tasks.filter(task=>!task.deletedAt&&task.kind!=='note');
+  const counts = {all:tasks.length,ready:tasks.filter(ready).length,attention:tasks.filter(attention).length,complete:tasks.filter(task => task.review === 'complete').length,notes:state.tasks.filter(task=>!task.deletedAt&&task.kind==='note').length};
   document.querySelectorAll('[data-filter]').forEach(button => {
     button.replaceChildren(el('span', getFilterNames()[button.dataset.filter]), el('span', String(counts[button.dataset.filter]), 'tab-count'));
     button.setAttribute('aria-pressed', String(button.dataset.filter === filter));
   });
   root.replaceChildren();
-  const visible = state.tasks.filter(task => task.kind==='note' ? filter==='notes' : filter === 'all' || filter === 'ready' && ready(task) || filter === 'attention' && attention(task) || filter === 'complete' && task.review === 'complete');
+  $('trash').textContent=tr('휴지통')+' '+state.tasks.filter(task=>task.deletedAt).length;
+  const visible = state.tasks.filter(task => task.deletedAt ? filter==='trash' : filter==='trash' ? false : task.kind==='note' ? filter==='notes' : filter === 'all' || filter === 'ready' && ready(task) || filter === 'attention' && attention(task) || filter === 'complete' && task.review === 'complete');
   if (!visible.length) root.append(el('p', state.tasks.length ? tr('이 상태의 항목이 없습니다.') : tr('+ 버튼으로 첫 할 일을 추가하세요.'), 'empty'));
   for (const task of visible) {
     const card = el('article', undefined, 'task');
+    if(task.deletedAt){const row=el('div',undefined,'trash-row');const restore=el('button',tr('복원'));restore.onclick=()=>action('archive',{id:task.id,deleted:false});row.append(el('span',task.title),restore);card.append(row);root.append(card);continue;}
     if(task.kind==='note'){
       const fold=detail(task.id+':note',task.title,openKeys);fold.querySelector('summary').className='task-heading';
       const body=el('div',undefined,'task-body');body.append(el('p',task.note||'', 'note-body'));
-      const convert=el('button',tr('할 일로 전환'));convert.onclick=()=>openTask({...task,kind:'task'});body.append(convert);fold.append(body);
+      const convert=el('button',tr('할 일로 전환'));convert.onclick=()=>openTask({...task,kind:'task'});const remove=el('button',tr('삭제'),'danger-button');remove.onclick=()=>action('archive',{id:task.id,deleted:true});body.append(convert,remove);fold.append(body);
       const row=el('div',undefined,'task-row');const edit=el('button',tr('수정'),'review-button');edit.onclick=()=>openTask(task);row.append(fold,edit);card.append(row);root.append(card);continue;
     }
     const badges = el('div', undefined, 'badges');
@@ -157,7 +159,7 @@ function render() {
     const edit = el('button', tr('수정'));
     edit.disabled = active(task) || pending.has(task.id);
     edit.onclick = () => openTask(task);
-    actions.append(work, edit); body.append(actions); fold.append(body);
+    const remove=el('button',tr('삭제'),'danger-button');remove.disabled=active(task)||pending.has(task.id);remove.onclick=()=>action('archive',{id:task.id,deleted:true});actions.append(work, edit,remove); body.append(actions); fold.append(body);
     const review = el('button', task.review === 'queued' ? tr('대기 중') : task.review === 'running' ? tr('검수 중…') : tr('검수 요청'), 'primary review-button');
     review.disabled = active(task) || pending.has(task.id);
     review.setAttribute('aria-label', task.title + ' ' + review.textContent);
@@ -192,6 +194,7 @@ function openSettings() {
   $('settings-error').textContent = '';
   $('settings-dialog').showModal();
 }
+$('trash').onclick=()=>{filter='trash';render();};
 $('add').onclick = () => openTask();
 $('board-name').onclick = openSettings;
 $('project').onclick = openSettings;

@@ -56,7 +56,9 @@ def handler(board, token):
                 d = json.loads(self.rfile.read(size))
                 if not isinstance(d, dict):
                     raise ValueError('요청 형식이 잘못되었습니다.')
-                if self.path == '/api/configure':
+                if self.path == '/api/archive':
+                    result=board.archive(d['id'],d['deleted'])
+                elif self.path == '/api/configure':
                     result = board.configure(d['project'])
                 elif self.path == '/api/rename':
                     result = board.rename(d['name'])
