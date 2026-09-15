@@ -38,7 +38,7 @@ class LiveReviewTests(unittest.TestCase):
 
 class DeviceInventoryTests(unittest.TestCase):
     def test_connected_unauthorized_and_absent_are_distinct(self):
-        outputs=[SimpleNamespace(returncode=0,stdout='List of devices attached\nabc unauthorized\ndef device model:TestPhone\n'),SimpleNamespace(returncode=0,stdout='{"devices":{}}')]
+        outputs=[SimpleNamespace(returncode=0,stdout='List of devices attached\nabc unauthorized\ndef device model:TestPhone\n'),SimpleNamespace(returncode=0,stdout='{"devices":{}}'),SimpleNamespace(returncode=0,stdout='[]')]
         with patch('live_review.subprocess.run',side_effect=outputs):
             result=device_inventory()
         self.assertEqual(result['android']['status'],'found')

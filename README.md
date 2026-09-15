@@ -113,3 +113,7 @@ The panel automatically uses Korean for Korean browser locales and English other
 ### Live review verification status
 
 The local Web smoke check opened the running app and inspected its language menu using the configured UI tool. In that host, the worker could not export a Chrome screenshot, so the result correctly remained blocked. Android/iOS execution and screenshot export are host-dependent and have not been end-to-end certified across supported hosts. Do not treat the deterministic CI suite as device certification.
+
+### Android screen access
+
+Mobile reviews require a device-control MCP, not just a connected USB device. Configure [Mobile MCP](https://github.com/mobile-next/mobile-mcp) with `codex mcp add mobile-mcp -- npx -y @mobilenext/mobile-mcp@1.0.4`, with your Android SDK and Node executable available in its environment. The preparation dialog disables retry when no supported mobile MCP is configured. Configuration presence is not a live health check; the reviewer still validates screen access and screenshot capture.

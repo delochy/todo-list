@@ -149,7 +149,8 @@
     "연결 확인됨. 화면 제어 도구의 접근은 검수 시 확인합니다.": "Connected. UI tool access will be checked during review.",
     "iOS Simulator를 실행하거나 지원되는 테스트 기기를 연결하세요.": "Start iOS Simulator or connect a supported test device.",
     "테스트폰을 USB로 연결하거나 Android 에뮬레이터를 실행하세요.": "Connect a test phone via USB or start an Android emulator.",
-    "기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요.": "Cannot read device inventory. Check the SDK installation and tool access."
+    "기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요.": "Cannot read device inventory. Check the SDK installation and tool access.",
+    "화면 제어 도구가 없습니다. Codex에서 Mobile MCP 연결을 요청하세요. 연결 전에는 재검수할 수 없습니다.": "No screen-control tool is configured. Ask Codex to connect Mobile MCP. Retry is unavailable until connected."
   },
   "ko": {
     "할 일": "할 일",
@@ -301,6 +302,7 @@
     "연결 확인됨. 화면 제어 도구의 접근은 검수 시 확인합니다.": "연결 확인됨. 화면 제어 도구의 접근은 검수 시 확인합니다.",
     "iOS Simulator를 실행하거나 지원되는 테스트 기기를 연결하세요.": "iOS Simulator를 실행하거나 지원되는 테스트 기기를 연결하세요.",
     "테스트폰을 USB로 연결하거나 Android 에뮬레이터를 실행하세요.": "테스트폰을 USB로 연결하거나 Android 에뮬레이터를 실행하세요.",
-    "기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요.": "기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요."
+    "기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요.": "기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요.",
+    "화면 제어 도구가 없습니다. Codex에서 Mobile MCP 연결을 요청하세요. 연결 전에는 재검수할 수 없습니다.": "화면 제어 도구가 없습니다. Codex에서 Mobile MCP 연결을 요청하세요. 연결 전에는 재검수할 수 없습니다."
   }
 }

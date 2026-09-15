@@ -177,8 +177,9 @@ function render() {
   }
 }
 async function checkEnvironment(){
-  $('environment-devices').textContent=tr('기기 연결 확인 중…');
+  $('environment-devices').textContent=tr('기기 연결 확인 중…');$('environment-retry').disabled=true;
   try { const {result}=await api('environment',{});const root=$('environment-devices');root.replaceChildren();
+    let missingTool=false;
     for(const platform of environmentTask.platforms || ['android','ios']){
       const entry=result[platform];let message;
       if(platform==='web')message=tr('테스트 웹 주소와 브라우저 화면 접근을 준비하세요.');
@@ -186,7 +187,9 @@ async function checkEnvironment(){
       else if(entry?.status==='missing')message=platform==='ios'?tr('iOS Simulator를 실행하거나 지원되는 테스트 기기를 연결하세요.'):tr('테스트폰을 USB로 연결하거나 Android 에뮬레이터를 실행하세요.');
       else message=tr('기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요.');
       root.append(el('p',platform.toUpperCase()+' · '+message));
+      if(platform!=='web'&&!result.tools?.[platform]){missingTool=true;root.append(el('p',platform.toUpperCase()+' · '+tr('화면 제어 도구가 없습니다. Codex에서 Mobile MCP 연결을 요청하세요. 연결 전에는 재검수할 수 없습니다.'),'errorbox'));}
     }
+    $('environment-retry').disabled=missingTool;
   }catch(error){$('environment-devices').textContent=error.message;}
 }
 function openEnvironment(task){environmentTask=task;$('environment-reason').textContent=task.message||task.result?.summary||'';$('environment-context').value=task.reviewContext||'';$('environment-error').textContent='';$('environment-dialog').showModal();checkEnvironment();}
