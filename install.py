@@ -8,7 +8,7 @@ import tempfile
 import time
 
 FILES = ('SKILL.md', 'agents/openai.yaml', 'scripts/board.py', 'scripts/core.py',
-         'scripts/webserver.py', 'assets/board.html', 'assets/board.css', 'assets/board.js')
+         'scripts/webserver.py', 'scripts/live_review.py', 'assets/board.html', 'assets/board.css', 'assets/board.js', 'assets/locales.json')
 
 def install(destination):
     source = Path(__file__).resolve().parent / 'skill' / 'todo-list'

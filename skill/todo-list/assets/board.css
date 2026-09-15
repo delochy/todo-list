@@ -92,3 +92,11 @@ textarea { min-height: 85px; resize: vertical; }
 @media (max-width: 520px) { main { padding-inline: 16px; } input, textarea { font-size: 16px; } }
 
 .list-reason { margin: 0 0 13px; font-size: 11px; color: var(--red-text); line-height: 1.6; overflow-wrap: anywhere; }
+
+select { width:100%; font:inherit; color:var(--text); background:var(--surface); border:1px solid var(--line); padding:10px; border-radius:6px; }
+html[lang=en] .filters button { font-size:10px; gap:3px; }
+html[lang=en] .badge { font-size:10px; }
+
+.platform-picker{border:0;padding:0;margin:16px 0;display:flex;gap:8px;flex-wrap:wrap}.platform-picker legend{font-size:12px;margin-bottom:6px}.platform-picker label{display:flex;align-items:center;gap:7px;margin:0;border:1px solid var(--line);padding:7px 10px;border-radius:7px;cursor:pointer}.platform-picker input{width:15px;height:15px;padding:0;accent-color:var(--action)}.platform-picker label:has(input:checked){border-color:var(--action)}.badge.platform{background:transparent;border:1px solid var(--line);padding:1px 6px}.badge.platform:before{content:none}#evidence-image{display:block;max-width:100%;max-height:75vh;margin-top:10px;object-fit:contain}#evidence-dialog{max-width:800px;width:calc(100% - 30px)}
+
+[hidden]{display:none!important}.note-body{white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 12px}.filters{overflow-x:auto}.filters button{min-width:max-content;padding-inline:5px}.platform-picker{gap:6px}

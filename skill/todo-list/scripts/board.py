@@ -9,6 +9,7 @@ def main():
     parser.add_argument('--project', required=True, type=Path)
     parser.add_argument('--state-dir', type=Path, help='Override local state location (also used for migration)')
     parser.add_argument('--port', type=int, default=0)
+    parser.add_argument('--language',choices=['ko','en'],default='en')
     parser.add_argument('--title')
     parser.add_argument('--id')
     parser.add_argument('--work')
@@ -33,7 +34,7 @@ def main():
         if not url.startswith('http://127.0.0.1:'):
             raise ValueError('로컬 보드 주소가 아닙니다.')
         route = {'add': 'add', 'status': 'status', 'list': 'state'}[args.command]
-        payload = {'title': args.title, 'paths': args.path, 'criteria': args.criterion} if args.command == 'add' else {'id': args.id, 'work': args.work}
+        payload = {'language':args.language,'title': args.title, 'paths': args.path, 'criteria': args.criterion} if args.command == 'add' else {'id': args.id, 'work': args.work}
         request = Request(url + '/api/' + route, data=None if args.command == 'list' else json.dumps(payload).encode(), headers={'X-Board-Token': config['token'], 'Content-Type': 'application/json'})
         print(urlopen(request, timeout=20).read().decode())
         return

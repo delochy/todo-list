@@ -1,6 +1,6 @@
 ---
 name: todo-list
-description: Manage a todo board inside a Codex browser panel, with one-line task entry, queued local artifact reviews, and persistent evidence and status. Use for task lists with review buttons or tracked verification.
+description: Manage a todo board inside a Codex browser panel, with one-line task entry, platform-specific UI reviews, and persistent evidence and status. Use for task lists with review buttons or tracked verification.
 ---
 
 # Todo List
@@ -29,10 +29,17 @@ Repeat `--path` and `--criterion` as needed. Omitted paths trigger a read-only d
 
 Review requests do not mark work completed. Update work independently with `status --project <project> --id <id> --work todo|doing|done`. Requests queue FIFO with one active review. Already queued/running tasks cannot be edited or requested twice.
 
-The reviewer inspects local code and artifacts in a read-only Codex sandbox, without configured MCP servers. It does not log into services or manipulate browsers/simulators. A code review is not a live OAuth or end-to-end test. Criteria that require unavailable live observations remain blocked. For Figma comparisons, use explicitly identified local exports and identify the export as a snapshot; remote changes are not tracked.
+The UI requests live review by default. Each task selects one or more of Web, Android and iOS. The live worker enables only configured local computer-use MCP servers and uses their documented APIs to observe and interact with the actual app. A selected platform must have observed steps and screenshot evidence before passing. No code-only substitution is allowed. Mobile requires an available running test simulator/emulator and app; Web can specify its test URL. A missing environment or tool is reported as blocked. Do not claim that this skill installs or universally supplies the device tools.
 
+Review requests do not authorize destructive real-account actions, credential entry, provider consent or payments. Respect computer-use confirmation rules and identify the exact user action needed when blocked. Never synthesize screenshots to satisfy the evidence requirement. The API's optional `mode=code` is for explicitly requested artifact-only diagnostics.
+
+Ideas live in a separate tab without review buttons. Convert an idea to a task when the user is ready, preserving its text and choosing platforms.
 A complete verdict requires every criterion to pass with evidence, no outstanding findings, and unchanged tracked content. Changed or deleted artifacts invalidate prior verification. Errors, missing evidence and interrupted runs never count as complete. The user must request any fixes separately.
 
 ## Persistence
 
 State defaults to `~/.local/share/todo-list/<project-hash>/`. `--state-dir <directory>` explicitly overrides it, including for migration from an older board. Use the same override for serve/add/status/list. Do not commit state, runtime tokens, reviewer logs or user artifacts. An interrupted review becomes an error on restart and can be requested again. Stop the server session before updating the installed skill.
+
+## Language
+
+English and Korean are supported. The browser selects Korean for Korean locales and English otherwise; board settings override and save that preference. Review requests snapshot the selected language. Existing evidence and task text retain their original language. CLI task creation accepts `--language en|ko` (default English).

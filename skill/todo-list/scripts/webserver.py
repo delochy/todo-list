@@ -9,13 +9,14 @@ def handler(board, token):
             pass
 
         def send(self, status, body, kind='application/json'):
-            payload = body.encode() if isinstance(body, str) else json.dumps(body, ensure_ascii=False).encode()
+            body = translate_payload(body, self.headers.get('X-Board-Language','ko')) if kind=='application/json' else body
+            payload = body if isinstance(body,bytes) else body.encode() if isinstance(body, str) else json.dumps(body, ensure_ascii=False).encode()
             self.send_response(status)
             self.send_header('Content-Type', kind + '; charset=utf-8')
             self.send_header('Cache-Control', 'no-store')
             self.send_header('X-Content-Type-Options', 'nosniff')
             self.send_header('Referrer-Policy', 'no-referrer')
-            self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
+            self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
             self.send_header('Content-Length', str(len(payload)))
             self.end_headers()
             self.wfile.write(payload)
@@ -28,9 +29,18 @@ def handler(board, token):
                 return self.send(403, {'error': 'Invalid host'})
             if self.path == '/':
                 return self.send(200, (ASSETS / 'board.html').read_text().replace('__TOKEN__', token), 'text/html')
-            if self.path in ('/board.css', '/board.js'):
+            if self.path in ('/board.css', '/board.js', '/locales.json'):
                 filename = self.path[1:]
-                return self.send(200, (ASSETS / filename).read_text(), 'text/css' if filename.endswith('.css') else 'application/javascript')
+                return self.send(200, (ASSETS / filename).read_text(), 'text/css' if filename.endswith('.css') else 'application/json' if filename.endswith('.json') else 'application/javascript')
+            if self.path.startswith('/api/evidence/') and secrets.compare_digest(self.headers.get('X-Board-Token',''),token):
+                try:
+                    parts=self.path.split('/')
+                    if len(parts)!=5: raise ValueError('Invalid evidence URL')
+                    task=board.find(parts[3]);item=task.get('evidence',[])[int(parts[4])]
+                    root=(board.dir/'runs'/task['evidenceRun']).resolve();path=(root/item['path']).resolve()
+                    if not path.is_relative_to(root) or not path.is_file(): raise ValueError('Missing evidence')
+                    return self.send(200,path.read_bytes(),'image/png')
+                except (ValueError,IndexError,KeyError,StopIteration,OSError): return self.send(404,{'error':'Evidence not found'})
             if self.path == '/api/state' and secrets.compare_digest(self.headers.get('X-Board-Token', ''), token):
                 return self.send(200, board.state())
             self.send(404, {'error': 'Not found'})
@@ -57,7 +67,7 @@ def handler(board, token):
                 elif self.path == '/api/status':
                     result = board.status(d['id'], d['work'])
                 elif self.path == '/api/review':
-                    result = board.review(d['id'])
+                    result = board.review(d['id'],d.get('language','ko'),d.get('mode','live'))
                 else:
                     return self.send(404, {'error': 'Not found'})
                 self.send(200, {'ok': True, 'result': result})

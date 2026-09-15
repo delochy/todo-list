@@ -11,6 +11,7 @@ from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 from http.server import ThreadingHTTPServer
 from board import Board, fingerprint, handler, verdict
+from core import translate_payload
 
 class Tests(unittest.TestCase):
     def setUp(self):
@@ -66,7 +67,7 @@ class Tests(unittest.TestCase):
             calls.append(task_id);entered.set();release.wait(3)
             with self.board.lock:self.board.find(task_id)['review']='complete'
         with patch.object(self.board,'run',side_effect=runner):
-            self.board.review(self.task['id']);self.assertTrue(entered.wait(1))
+            self.board.review(self.task['id'],mode='code');self.assertTrue(entered.wait(1))
             self.board.review(second['id']);self.assertEqual(second['review'],'queued')
             with self.assertRaises(ValueError):self.board.review(second['id'])
             release.set()
@@ -82,7 +83,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(Board(self.root,self.root/'state').project,other)
     def test_request_preserves_work_state(self):
         with patch.object(self.board,'run_queued'):
-            self.board.review(self.task['id'])
+            self.board.review(self.task['id'],mode='code')
         self.assertEqual(self.task['work'],'todo')
         self.assertEqual(self.task['review'],'queued')
     def test_malformed_result_is_not_complete(self):
@@ -99,7 +100,29 @@ class Tests(unittest.TestCase):
             target.unlink();outside.rmdir()
     def test_shutdown_rejects_new_requests(self):
         self.board.shutdown()
-        with self.assertRaises(ValueError):self.board.review(self.task['id'])
+        with self.assertRaises(ValueError):self.board.review(self.task['id'],mode='code')
+    def test_review_language_is_snapshotted(self):
+        with patch.object(self.board,'run_queued'):
+            self.board.review(self.task['id'],'en')
+        self.assertEqual(self.task['language'],'en')
+        with self.assertRaises(ValueError):self.board.review(self.task['id'],'xx')
+    def test_translation_preserves_user_report(self):
+        data={'message':'검수 이후 대상 파일이 바뀌었습니다.','title':'할 일','result':{'summary':'할 일'}}
+        english=translate_payload(data,'en')
+        self.assertEqual(english['message'],'Files changed since the last review.')
+        self.assertEqual(english['title'],'할 일')
+        self.assertEqual(english['result']['summary'],'할 일')
+    def test_english_default_criterion(self):
+        task=self.board.add({'title':'Check login','language':'en'})
+        self.assertIn('artifacts satisfy',task['criteria'][0])
+    def test_idea_conversion_preserves_content(self):
+        idea=self.board.add({'kind':'note','title':'Later','note':'Detailed idea','platforms':['web']})
+        with self.assertRaises(ValueError):self.board.review(idea['id'])
+        task=self.board.add({'kind':'task','title':idea['title'],'note':idea['note'],'platforms':['web']},idea['id'])
+        self.assertEqual(task['id'],idea['id'])
+        self.assertEqual(task['kind'],'task')
+        self.assertEqual(task['note'],'Detailed idea')
+        self.assertEqual(task['review'],'pending')
     def test_scope_guards(self):
         for p in ['.','../outside','state']:
             with self.assertRaises(ValueError):self.board.add({'title':'x','criteria':['y'],'paths':[p]})
@@ -116,9 +139,9 @@ class Tests(unittest.TestCase):
         executable.chmod(0o700)
         self.board.status(self.task['id'],'done')
         with patch('core.shutil.which',return_value=str(executable)):
-            self.board.review(self.task['id'])
+            self.board.review(self.task['id'],mode='code')
             self.assertIn(self.task['review'],('queued','running'))
-            with self.assertRaises(ValueError):self.board.review(self.task['id'])
+            with self.assertRaises(ValueError):self.board.review(self.task['id'],mode='code')
             deadline=time.time()+5
             while self.task['review'] in ('queued','running') and time.time()<deadline:time.sleep(.03)
         self.assertEqual(self.task['review'],'complete')

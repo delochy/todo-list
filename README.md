@@ -2,15 +2,19 @@
 
 A compact todo and review panel for Codex. Add a task in one line, request a review, and inspect the evidence without losing your task list.
 
-**v0.1.0 — local artifact review, not live application testing.**
+**v0.2.0 — platform-aware UI review and ideas.**
 
 ## Features
 
 - Editable board name and actual source project root
+- Tasks and Ideas; convert an idea to a task without losing its notes
+- Per-task Web / Android / iOS checkboxes and optional web test URL
 - One-line tasks; optional file scopes and acceptance criteria
-- Automatic relevant-file discovery inside the selected project
+- Actual UI inspection on selected platforms; artifact discovery for code-only diagnostics
 - FIFO review queue with independent work and review states
 - Evidence for each criterion, previous results, and change detection
+- English and Korean UI with browser-language detection and a saved language selector
+- New reviews and discovery explanations follow the requested language
 - Compact accordion rows, semantic status colors, light/dark appearance
 - Loopback-only server, same-origin requests, no frontend dependencies
 
@@ -54,13 +58,18 @@ Open the printed localhost address in the Codex browser panel. Keep the server r
 | 실행 오류 | CLI failure, interruption, or invalid output |
 | 재검수 필요 | Tracked files or the configured project changed |
 
-The worker uses `codex exec` with a read-only sandbox and no user-configured MCP servers. It inspects local source, tests and image exports. It **does not** execute live login flows, operate a simulator, or prove that a running app works. A request needing those observations may remain `확인 불가`; this is not a passing test. AI review is fallible: inspect the evidence before relying on it.
+The default review uses configured computer-use MCP tools to inspect the actual UI on the task's selected platforms. It discovers an available browser or running test device, performs the requested navigation, and records observed steps and PNG screenshots. Each selected platform is reported separately. A pass requires evidence on every selected platform; reading code alone cannot pass a live review.
 
+**Setup is required:** the host must have an enabled local stdio computer-use MCP server (`cua_repl`, `computer-use`, `XcodeBuildMCP`, `xcodebuildmcp`, or `mobile-mcp`) whose tools support the chosen platform. Mobile reviews need a running simulator/emulator and the test app. Web reviews may specify a local/test URL. Availability depends on your Codex host; installing this skill does not install or provision device-control tools. If a tool, target or screenshot export is unavailable, the result is blocked with a next step.
+
+The live worker enables only those UI MCP servers, uses a workspace-write sandbox for screenshot artifacts, and instructs the agent not to change application source or bypass tool permissions. It does not grant authorization for deleting real accounts, submitting credentials, payments, or provider permissions. Such steps must be handled through an appropriately authorized test environment. Screenshot and step validation prevents empty evidence from passing, but it is not a guarantee against every incorrect agent observation.
+
+An internal `mode=code` API option retains the previous read-only artifact review for diagnostics. The UI requests live review by default.
 Automatic discovery can miss files. Expand the task and edit its scope if necessary. Only tracked files are fingerprinted; changes to undiscovered dependencies or remote documents do not invalidate a result. Explicit image attachments are limited to five.
 
 ## Data and privacy
 
-Task state and logs stay outside the repository, under `~/.local/share/todo-list/<project-hash>/`. The CLI sends the artifacts it reads to the configured Codex service as part of normal review. Do not use a project containing data you are not authorized to submit. The worker is scoped by prompt and local path validation, not a custom OS-level read allowlist.
+Task state and logs stay outside the repository, under `~/.local/share/todo-list/<project-hash>/`. The CLI sends the artifacts it reads to the configured Codex service as part of normal review. Do not use a project containing data you are not authorized to submit. The worker is scoped by prompt, configured UI tools, and local path validation, not a custom OS-level read allowlist. Screenshots may contain private app data and are stored with the other local review artifacts.
 
 The server binds only to `127.0.0.1`; authenticated requests require a per-run token. Do not expose it with a public tunnel. Tokens/logs are runtime data, never repository content. The directory is private to the local user.
 
@@ -79,11 +88,12 @@ PYTHONPATH=skill/todo-list/scripts python3 -m unittest discover -s tests -v
 node --check skill/todo-list/assets/board.js
 ```
 
-Tests use a fixture CLI for deterministic discovery/review output; they do not claim to test live model quality or third-party login. GitHub Actions runs the same suite on macOS and Linux.
+Tests use a fixture CLI for deterministic output and check evidence requirements, platform scope and idea conversion; they do not claim to test every mobile host, live model quality or third-party login. GitHub Actions runs the same suite on macOS and Linux.
 
 ## Project layout
 
 - `skill/todo-list/scripts/core.py`: persistence, path validation, queue, review runner
+- `skill/todo-list/scripts/live_review.py`: platform contracts, UI MCP configuration and screenshot validation
 - `skill/todo-list/scripts/webserver.py`: local HTTP routes and headers
 - `skill/todo-list/scripts/board.py`: CLI entry point
 - `skill/todo-list/assets/`: HTML, CSS, JavaScript (one maintained source for each)
@@ -95,3 +105,11 @@ Custom Codex themes are not automatically inherited. The panel responds to its b
 ## License
 
 MIT. This is an independent project, not an official OpenAI product.
+
+## Languages
+
+The panel automatically uses Korean for Korean browser locales and English otherwise. Choose Automatic, English or 한국어 in board settings. The preference is saved in the browser for this board address. New reviews use the selected language; previous reports and user-authored task text are preserved. UI and runtime messages live in `skill/todo-list/assets/locales.json`. Add matching locale keys there when contributing translations. Currently supported: English and Korean, not every language. CLI task creation accepts `--language en|ko`.
+
+### Live review verification status
+
+The local Web smoke check opened the running app and inspected its language menu using the configured UI tool. In that host, the worker could not export a Chrome screenshot, so the result correctly remained blocked. Android/iOS execution and screenshot export are host-dependent and have not been end-to-end certified across supported hosts. Do not treat the deterministic CI suite as device certification.
