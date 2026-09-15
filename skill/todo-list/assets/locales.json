@@ -133,7 +133,23 @@
     "복원": "Restore",
     "삭제": "Delete",
     "검수가 끝난 뒤 삭제하세요.": "Wait for the review to finish before deleting.",
-    "휴지통에서 먼저 복원하세요.": "Restore this item from Trash first."
+    "휴지통에서 먼저 복원하세요.": "Restore this item from Trash first.",
+    "검수를 계속하려면 준비가 필요해요": "Set up your review environment",
+    "기기 연결과 화면 접근 권한은 별개입니다. 권한 창이 기기에 뜨면 직접 승인하세요. 이 패널은 OS 권한을 대신 승인하지 않습니다.": "Device connection and screen access are separate. Approve permission prompts on the device yourself. This panel cannot grant OS permissions.",
+    "사용할 테스트 기기 · 준비한 환경": "Test device and environment details",
+    "예: 연결된 Android 테스트폰 사용. 앱 실행 완료.": "For example: Use the connected Android test phone. The app is running.",
+    "나중에": "Later",
+    "플랫폼 변경": "Change platforms",
+    "연결 다시 확인": "Check connection again",
+    "준비 완료 · 재검수": "Ready · Retry review",
+    "검수 준비": "Set up review",
+    "기기 연결 확인 중…": "Checking devices…",
+    "테스트 웹 주소와 브라우저 화면 접근을 준비하세요.": "Prepare the test URL and browser screen access.",
+    "기기에서 USB 디버깅을 승인하세요.": "Approve USB debugging on the device.",
+    "연결 확인됨. 화면 제어 도구의 접근은 검수 시 확인합니다.": "Connected. UI tool access will be checked during review.",
+    "iOS Simulator를 실행하거나 지원되는 테스트 기기를 연결하세요.": "Start iOS Simulator or connect a supported test device.",
+    "테스트폰을 USB로 연결하거나 Android 에뮬레이터를 실행하세요.": "Connect a test phone via USB or start an Android emulator.",
+    "기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요.": "Cannot read device inventory. Check the SDK installation and tool access."
   },
   "ko": {
     "할 일": "할 일",
@@ -269,6 +285,22 @@
     "복원": "복원",
     "삭제": "삭제",
     "검수가 끝난 뒤 삭제하세요.": "검수가 끝난 뒤 삭제하세요.",
-    "휴지통에서 먼저 복원하세요.": "휴지통에서 먼저 복원하세요."
+    "휴지통에서 먼저 복원하세요.": "휴지통에서 먼저 복원하세요.",
+    "검수를 계속하려면 준비가 필요해요": "검수를 계속하려면 준비가 필요해요",
+    "기기 연결과 화면 접근 권한은 별개입니다. 권한 창이 기기에 뜨면 직접 승인하세요. 이 패널은 OS 권한을 대신 승인하지 않습니다.": "기기 연결과 화면 접근 권한은 별개입니다. 권한 창이 기기에 뜨면 직접 승인하세요. 이 패널은 OS 권한을 대신 승인하지 않습니다.",
+    "사용할 테스트 기기 · 준비한 환경": "사용할 테스트 기기 · 준비한 환경",
+    "예: 연결된 Android 테스트폰 사용. 앱 실행 완료.": "예: 연결된 Android 테스트폰 사용. 앱 실행 완료.",
+    "나중에": "나중에",
+    "플랫폼 변경": "플랫폼 변경",
+    "연결 다시 확인": "연결 다시 확인",
+    "준비 완료 · 재검수": "준비 완료 · 재검수",
+    "검수 준비": "검수 준비",
+    "기기 연결 확인 중…": "기기 연결 확인 중…",
+    "테스트 웹 주소와 브라우저 화면 접근을 준비하세요.": "테스트 웹 주소와 브라우저 화면 접근을 준비하세요.",
+    "기기에서 USB 디버깅을 승인하세요.": "기기에서 USB 디버깅을 승인하세요.",
+    "연결 확인됨. 화면 제어 도구의 접근은 검수 시 확인합니다.": "연결 확인됨. 화면 제어 도구의 접근은 검수 시 확인합니다.",
+    "iOS Simulator를 실행하거나 지원되는 테스트 기기를 연결하세요.": "iOS Simulator를 실행하거나 지원되는 테스트 기기를 연결하세요.",
+    "테스트폰을 USB로 연결하거나 Android 에뮬레이터를 실행하세요.": "테스트폰을 USB로 연결하거나 Android 에뮬레이터를 실행하세요.",
+    "기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요.": "기기 목록에 접근하지 못했습니다. SDK 설치와 도구 접근 권한을 확인하세요."
   }
 }

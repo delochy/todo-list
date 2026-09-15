@@ -279,7 +279,8 @@ class Board:
                 t['review'] = 'stale'
             self.save()
 
-    def review(self, task_id, language='ko', mode='live'):
+    def review(self, task_id, language='ko', mode='live', context=''):
+        if not isinstance(context,str) or len(context)>2000: raise ValueError('Invalid environment details')
         if mode not in ('live','code'): raise ValueError('Unsupported review mode')
         if language not in ('ko','en'): raise ValueError('Unsupported language')
         with self.lock:
@@ -292,7 +293,7 @@ class Board:
                 raise ValueError('서버가 종료 중입니다.')
             if t['result'] or t.get('message'):
                 t['history'].append({'result': t['result'], 'review': t['review'], 'finished': t.get('finished')})
-            t.update(evidence=[],evidenceRun=None,mode=mode,language=language,review='queued', message='순서대로 검수합니다. 앞선 검수가 끝나면 자동으로 시작합니다.', result=None, started=now(), finished=None)
+            t.update(reviewContext=context,evidence=[],evidenceRun=None,mode=mode,language=language,review='queued', message='순서대로 검수합니다. 앞선 검수가 끝나면 자동으로 시작합니다.', result=None, started=now(), finished=None)
             self.save()
             with self.review_gate:
                 self.review_queue.append(task_id)
@@ -379,6 +380,8 @@ class Board:
             prompt = prompt.replace('Respond in Korean.', 'Respond in '+language_name(t.get('language','ko'))+'.')
             cmd = [executable, '-a', 'never', 'exec', '--ignore-user-config', '--sandbox', 'read-only', '--skip-git-repo-check', '--ephemeral', '--json', '-C', str(self.project), '--output-schema', str(schema_path), '-o', str(output)]
             if live:
+                from live_review import device_inventory
+                t['deviceInventory']=device_inventory()
                 prompt=live_prompt(t,self.project,run_dir,language_name(t.get('language','ko')))
                 ui_args,runner_env=ui_config_args(executable)
                 cmd=[executable,*ui_args,'-a','never','exec','--ignore-user-config','--sandbox','workspace-write','--add-dir',str(run_dir),'--skip-git-repo-check','--ephemeral','--json','-C',str(self.project),'--output-schema',str(schema_path),'-o',str(output)]

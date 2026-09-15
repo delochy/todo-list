@@ -29,7 +29,7 @@ Repeat `--path` and `--criterion` as needed. Omitted paths trigger a read-only d
 
 Review requests do not mark work completed. Update work independently with `status --project <project> --id <id> --work todo|doing|done`. Requests queue FIFO with one active review. Already queued/running tasks cannot be edited or requested twice.
 
-The UI requests live review by default. Each task selects one or more of Web, Android and iOS. The live worker enables only configured local computer-use MCP servers and uses their documented APIs to observe and interact with the actual app. A selected platform must have observed steps and screenshot evidence before passing. No code-only substitution is allowed. Mobile requires an available running test simulator/emulator and app; Web can specify its test URL. A missing environment or tool is reported as blocked. Do not claim that this skill installs or universally supplies the device tools.
+The UI requests live review by default. Each task selects one or more of Web, Android and iOS. The live worker enables only configured local computer-use MCP servers and uses their documented APIs to observe and interact with the actual app. A selected platform must have observed steps and screenshot evidence before passing. No code-only substitution is allowed. Mobile requires a connected test device or running test simulator/emulator and app; Web can specify its test URL. A missing environment or tool is reported as blocked. Do not claim that this skill installs or universally supplies the device tools.
 
 Review requests do not authorize destructive real-account actions, credential entry, provider consent or payments. Respect computer-use confirmation rules and identify the exact user action needed when blocked. Never synthesize screenshots to satisfy the evidence requirement. The API's optional `mode=code` is for explicitly requested artifact-only diagnostics.
 
@@ -43,3 +43,7 @@ State defaults to `~/.local/share/todo-list/<project-hash>/`. `--state-dir <dire
 ## Language
 
 English and Korean are supported. The browser selects Korean for Korean locales and English otherwise; board settings override and save that preference. Review requests snapshot the selected language. Existing evidence and task text retain their original language. CLI task creation accepts `--language en|ko` (default English).
+
+## Environment recovery
+
+Blocked reviews offer a preparation dialog with read-only Android/iOS device inventory, platform editing, and user environment details passed to retry. Newly requested reviews that become blocked open the dialog while the page remains active. Device presence does not prove UI control permission. Do not infer missing devices from the desktop app list alone. Never claim the panel grants OS permissions or boots devices: the user prepares the environment and approves device prompts.

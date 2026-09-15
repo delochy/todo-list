@@ -5,7 +5,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from core import Board
-from live_review import extend_schema, validate_evidence, ui_config_args
+from live_review import extend_schema, validate_evidence, ui_config_args, device_inventory, live_prompt
+from types import SimpleNamespace
 
 class LiveReviewTests(unittest.TestCase):
     def setUp(self):
@@ -34,3 +35,23 @@ class LiveReviewTests(unittest.TestCase):
         with patch('live_review.subprocess.run',return_value=output):args,environment=ui_config_args('codex')
         self.assertFalse(any('database' in arg for arg in args))
         self.assertIn('mcp_servers.cua_repl.command="fixture"',args)
+
+class DeviceInventoryTests(unittest.TestCase):
+    def test_connected_unauthorized_and_absent_are_distinct(self):
+        outputs=[SimpleNamespace(returncode=0,stdout='List of devices attached\nabc unauthorized\ndef device model:TestPhone\n'),SimpleNamespace(returncode=0,stdout='{"devices":{}}')]
+        with patch('live_review.subprocess.run',side_effect=outputs):
+            result=device_inventory()
+        self.assertEqual(result['android']['status'],'found')
+        self.assertEqual(result['android']['devices'][0]['status'],'unauthorized')
+        self.assertEqual(result['ios']['status'],'missing')
+    def test_tool_failure_is_not_absent_device(self):
+        with patch('live_review.subprocess.run',side_effect=OSError('denied')):
+            result=device_inventory()
+        self.assertEqual(result['android']['status'],'unavailable')
+        self.assertEqual(result['ios']['status'],'unavailable')
+    def test_review_receives_environment_context(self):
+        task={'title':'test','criteria':['screen'],'paths':[], 'reviewContext':'Use test phone', 'deviceInventory':{'android':{'status':'found'}}}
+        prompt=live_prompt(task,Path('/tmp'),Path('/tmp/run'),'English')
+        self.assertIn('Use test phone',prompt)
+        self.assertIn('"status": "found"',prompt)
+        self.assertIn('NOT evidence of UI tool access',prompt)

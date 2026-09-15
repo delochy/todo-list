@@ -58,6 +58,9 @@ def handler(board, token):
                     raise ValueError('요청 형식이 잘못되었습니다.')
                 if self.path == '/api/archive':
                     result=board.archive(d['id'],d['deleted'])
+                elif self.path == '/api/environment':
+                    from live_review import device_inventory
+                    result=device_inventory()
                 elif self.path == '/api/configure':
                     result = board.configure(d['project'])
                 elif self.path == '/api/rename':
@@ -69,7 +72,7 @@ def handler(board, token):
                 elif self.path == '/api/status':
                     result = board.status(d['id'], d['work'])
                 elif self.path == '/api/review':
-                    result = board.review(d['id'],d.get('language','ko'),d.get('mode','live'))
+                    result = board.review(d['id'],d.get('language','ko'),d.get('mode','live'),d.get('context',''))
                 else:
                     return self.send(404, {'error': 'Not found'})
                 self.send(200, {'ok': True, 'result': result})

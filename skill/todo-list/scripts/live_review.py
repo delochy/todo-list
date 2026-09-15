@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import re
 import struct
+import shutil
 import subprocess
 
 PLATFORMS = ('web', 'android', 'ios')
@@ -53,12 +54,14 @@ Task notes: {task.get('note','')}
 Task: {json.dumps({k:task[k] for k in ('title','criteria','paths')},ensure_ascii=False)}
 Source project: {project}
 Evidence directory: {run_dir}
+User environment details: {task.get('reviewContext','')}
+Read-only host device inventory (availability only, NOT evidence of UI tool access): {json.dumps(task.get('deviceInventory',{}))}
 Web test URL (if supplied): {task.get('webUrl','')} 
 Use only the configured computer-use MCP tools and their documented APIs for ALL screen observation and interaction. Read their documentation before using them. Do not replace UI tools with shell UI automation or invented screenshots.
 Inspect the project's instructions and source as needed to identify the app and navigation, but static code or test definitions are not proof of screen behavior.
-For EACH platform: use the supplied local/test web URL in a browser for web, or discover a running test simulator/emulator for mobile; inspect its actual screen, identify the target app, carry out the requested navigation/actions, inspect the resulting screen, and save original screenshot bytes to the evidence directory using documented capture/export APIs. Record concise actual actions and observations in steps, and project-independent paths to those screenshot files. Screenshots must show the observed app, never an HTML recreation, generated image or source listing.
+For EACH platform: use the supplied local/test web URL in a browser for web, or discover a connected test physical device or running test simulator/emulator for mobile; inspect its actual screen, identify the target app, carry out the requested navigation/actions, inspect the resulting screen, and save original screenshot bytes to the evidence directory using documented capture/export APIs. Record concise actual actions and observations in steps, and project-independent paths to those screenshot files. Screenshots must show the observed app, never an HTML recreation, generated image or source listing.
 Do not change source code, install software, reset devices, modify production data, publish, or log into accounts without the user's required authorization. Do not delete a real account, accept provider permissions, enter credentials or complete payments. If a destructive operation or login needs user input, mark only the affected platform/criteria blocked with a precise next action. Do not weaken computer-use approval policies.
-Do not invent an app ID, device, URL, test account, observation, or tool success. If a platform/device/tool is unavailable, report blocked for that platform and explain exactly what is missing. Continue independent checks on the other platform.
+Do not invent an app ID, device, URL, test account, observation, or tool success. An app list is NOT a device inventory. Use the supplied host inventory and documented device discovery APIs; distinguish device missing, device unauthorized, tool unavailable, and screenshot access unavailable. A connected device does not prove the UI tool can control it. If a platform/device/tool is unavailable, report blocked for that platform and explain exactly what is missing. Continue independent checks on the other platform.
 Every original criterion must appear exactly once in checks, with an aggregate status across all selected platforms. A criterion passes only after directly observing its requested behavior on every selected platform. Return exactly one platforms entry per selected platform and none for unselected platforms. A passing platform requires actual steps and original screenshot evidence. If saving screenshots is unsupported, report blocked instead of passing. Do not rerun the workflow indefinitely; return the observations and blockers after one bounded attempt per platform.
 '''
 
@@ -94,3 +97,27 @@ def validate_evidence(result, run_dir, platforms):
     statuses=[item['status'] for item in entries]
     outcome='changes' if 'fail' in statuses else 'blocked' if 'blocked' in statuses else 'complete'
     return outcome,evidence
+
+
+def device_inventory():
+    """Read device availability; never boot, authorize, install or interact."""
+    result = {}
+    adb = shutil.which('adb') or str(Path.home()/'Library/Android/sdk/platform-tools/adb')
+    for platform, command in [('android',[adb,'devices','-l']), ('ios',['xcrun','simctl','list','devices','booted','-j'])]:
+        try:
+            probe=subprocess.run(command,capture_output=True,text=True,timeout=8)
+            if probe.returncode:
+                result[platform]={'status':'unavailable','devices':[]}
+            elif platform=='android':
+                devices=[]
+                for line in probe.stdout.splitlines()[1:]:
+                    fields=line.split()
+                    if len(fields)>=2:
+                        devices.append({'name':next((x[6:] for x in fields if x.startswith('model:')),fields[0]),'status':fields[1]})
+                result[platform]={'status':'found' if devices else 'missing','devices':devices}
+            else:
+                devices=[{'name':d['name'],'status':'Booted'} for group in json.loads(probe.stdout)['devices'].values() for d in group if d.get('state')=='Booted']
+                result[platform]={'status':'found' if devices else 'missing','devices':devices}
+        except (OSError,subprocess.TimeoutExpired,ValueError,KeyError):
+            result[platform]={'status':'unavailable','devices':[]}
+    return result

@@ -30,7 +30,7 @@
 <dialog id="evidence-dialog"><button type="button" data-close="evidence-dialog">닫기</button><img id="evidence-image" alt="검수 화면 증거"></dialog><dialog id="task-dialog">
   <form id="task-form">
     <h2 id="task-form-title">할 일 추가</h2>
-    <label for="item-kind">종류</label><select id="item-kind"><option value="task">할 일</option><option value="note">아이디어</option></select><label for="title">제목</label>
+    <fieldset class="kind-picker"><legend>종류</legend><div class="kind-options"><label><input type="radio" name="item-kind" value="task" checked><span>할 일</span></label><label><input type="radio" name="item-kind" value="note"><span>아이디어</span></label></div></fieldset><label for="title">제목</label>
     <input id="title" required maxlength="200" placeholder="확인하고 싶은 일을 한 줄로 입력하세요">
     <div id="note-fields" hidden><label for="note-body">아이디어 · 나중에 할 일</label><textarea id="note-body" maxlength="20000" placeholder="생각을 자유롭게 적어두세요"></textarea></div><fieldset id="platform-fields" class="platform-picker"><legend>검수 플랫폼</legend><label><input type="checkbox" name="platform" value="web"> Web</label><label><input type="checkbox" name="platform" value="android" checked> Android</label><label><input type="checkbox" name="platform" value="ios" checked> iOS</label></fieldset>
     <div id="web-target" hidden><label for="web-url">웹 테스트 주소 · 선택 사항</label><input id="web-url" type="url" placeholder="http://localhost:3000"></div>
@@ -43,6 +43,16 @@
     <p id="task-error" class="errorbox" role="alert"></p>
     <div class="dialog-actions"><button type="button" data-close="task-dialog">취소</button><button type="submit" class="primary">저장</button></div>
   </form>
+</dialog>
+<dialog id="environment-dialog" aria-labelledby="environment-title">
+  <h2 id="environment-title">검수를 계속하려면 준비가 필요해요</h2>
+  <p id="environment-reason"></p>
+  <div id="environment-devices" role="status"></div>
+  <p class="help">기기 연결과 화면 접근 권한은 별개입니다. 권한 창이 기기에 뜨면 직접 승인하세요. 이 패널은 OS 권한을 대신 승인하지 않습니다.</p>
+  <label for="environment-context">사용할 테스트 기기 · 준비한 환경</label>
+  <textarea id="environment-context" maxlength="2000" placeholder="예: 연결된 Android 테스트폰 사용. 앱 실행 완료."></textarea>
+  <p id="environment-error" class="errorbox" role="alert"></p>
+  <div class="dialog-actions"><button type="button" data-close="environment-dialog">나중에</button><button type="button" id="environment-edit">플랫폼 변경</button><button type="button" id="environment-check">연결 다시 확인</button><button type="button" class="primary" id="environment-retry">준비 완료 · 재검수</button></div>
 </dialog>
 <dialog id="settings-dialog">
   <form id="settings-form">
