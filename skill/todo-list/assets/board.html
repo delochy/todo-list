@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="board-token" content="__TOKEN__">
+  <title>Todo List</title>
+  <link rel="stylesheet" href="/board.css">
+  <script src="/board.js" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">워크스페이스 / Todo List</p>
+    <h1><button id="board-name" title="보드 이름 변경">Todo List</button></h1>
+    <button id="project" class="project" title="검수할 프로젝트 설정">프로젝트 설정</button>
+  </header>
+  <nav class="filters" aria-label="작업 필터">
+    <button data-filter="all" aria-pressed="true">전체</button>
+    <button data-filter="ready" aria-pressed="false">검수 대기</button>
+    <button data-filter="attention" aria-pressed="false">확인 필요</button>
+    <button data-filter="complete" aria-pressed="false">검수 완료</button>
+  </nav>
+  <p id="sync" class="sync" role="status">연결 중</p>
+  <p id="error" class="errorbox" role="alert"></p>
+  <section id="tasks" aria-label="할 일 목록"></section>
+  <footer>검수 요청은 작업 완료 처리와 별개입니다.<br>로컬 코드·결과물을 확인하며, 실제 로그인이나 앱 조작은 실행하지 않습니다.</footer>
+</main>
+<button id="add" aria-label="새 할 일 추가" title="새 할 일 추가">+</button>
+<dialog id="task-dialog">
+  <form id="task-form">
+    <h2 id="task-form-title">할 일 추가</h2>
+    <label for="title">해야 할 일</label>
+    <input id="title" required maxlength="200" placeholder="확인하고 싶은 일을 한 줄로 입력하세요">
+    <details id="advanced"><summary>상세 설정 · 선택 사항</summary>
+      <label for="paths">대상 파일·폴더</label>
+      <textarea id="paths" placeholder="비워두면 프로젝트에서 자동으로 찾습니다"></textarea>
+      <label for="criteria">검수 조건</label>
+      <textarea id="criteria" placeholder="한 줄에 하나씩 입력하세요"></textarea>
+    </details>
+    <p id="task-error" class="errorbox" role="alert"></p>
+    <div class="dialog-actions"><button type="button" data-close="task-dialog">취소</button><button type="submit" class="primary">저장</button></div>
+  </form>
+</dialog>
+<dialog id="settings-dialog">
+  <form id="settings-form">
+    <h2>보드 설정</h2>
+    <label for="name-input">보드 이름</label><input id="name-input" required maxlength="80">
+    <label for="project-input">실제 프로젝트 폴더</label><input id="project-input" required placeholder="/absolute/path/to/project">
+    <p class="help">소스가 있는 실제 폴더를 한 번 지정하세요. 이후 검수 요청마다 관련 파일을 자동으로 찾습니다. 프로젝트를 변경하면 이전 검수는 재검수 상태가 됩니다.</p>
+    <p id="settings-error" class="errorbox" role="alert"></p>
+    <div class="dialog-actions"><button type="button" data-close="settings-dialog">취소</button><button type="submit" class="primary">저장</button></div>
+  </form>
+</dialog>
+</body>
+</html>

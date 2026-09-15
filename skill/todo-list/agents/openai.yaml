@@ -1,0 +1,4 @@
+interface:
+  display_name: "Todo List"
+  short_description: "할 일을 정리하고 버튼으로 Codex 검수를 실행해 결과와 완료 상태를 확인"
+  default_prompt: "$todo-list로 지금 요청한 작업의 할 일을 정리하고 Codex 패널에 검수 보드를 열어줘."

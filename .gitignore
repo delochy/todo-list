@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+._*
+.env*
+.venv/
+artifacts/
+state/
+runtime.json
+board.json
+*.log
