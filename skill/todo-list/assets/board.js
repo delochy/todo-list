@@ -132,7 +132,7 @@ function render() {
     task.criteria.forEach(text => criteria.append(el('li', text)));
     content.append(criteria);
     if (task.result) {
-      content.append(el('h3', tr('실제 화면 검수')), resultNode(task.result));
+      content.append(el('h3', task.mode==='live'?tr('실제 화면 검수'):tr('로컬 결과물 검수')), resultNode(task.result));
       if (task.finished) content.append(el('p', new Date(task.finished).toLocaleString(locale), 'timestamp'));
     }
     for (const platform of task.result?.platforms || []) {
