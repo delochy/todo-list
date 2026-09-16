@@ -3,6 +3,46 @@
 from core import *
 from webserver import handler
 
+def project_identity(project):
+    project = Path(project).resolve()
+    try:
+        result = subprocess.run(['git','-C',str(project),'rev-parse','--path-format=absolute','--git-common-dir'],capture_output=True,text=True,timeout=5)
+        if result.returncode == 0:
+            return 'git:' + str(Path(result.stdout.strip()).resolve())
+    except (OSError,subprocess.TimeoutExpired):
+        pass
+    return 'path:' + str(project)
+
+
+def resolve_state_dir(project, explicit=None, base=None):
+    """One registered board per repository, including linked worktrees."""
+    base = Path(base or Path.home()/'.local/share/todo-list')
+    base.mkdir(parents=True,exist_ok=True)
+    identity = project_identity(project)
+    key = hashlib.sha256(identity.encode()).hexdigest()[:16]
+    registry = base/'projects'
+    registry.mkdir(exist_ok=True)
+    with (registry/'registry.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX)
+        pointer = registry/(key+'.json')
+        registered = Path(json.loads(pointer.read_text())['state_dir']) if pointer.exists() else None
+        if explicit:
+            directory = Path(explicit).resolve()
+            if registered and registered.resolve()!=directory and (registered/'board.json').exists():
+                existing=json.loads((registered/'board.json').read_text())
+                if existing.get('tasks'):
+                    raise ValueError('A board already exists for this project: '+str(registered)+'. Reopen it without --state-dir; no data was moved.')
+        elif registered:
+            if not (registered/'board.json').exists():
+                raise ValueError('Registered board is unavailable: '+str(registered)+'. Restore its location; no empty replacement was created.')
+            return registered
+        else:
+            legacy=base/hashlib.sha256(str(Path(project).resolve()).encode()).hexdigest()[:16]
+            directory=legacy if (legacy/'board.json').exists() else base/key
+        directory.mkdir(parents=True,exist_ok=True)
+        atomic(pointer,{'identity':identity,'state_dir':str(directory.resolve())})
+        return directory.resolve()
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('command', choices=['serve', 'add', 'status', 'list', 'doctor'])
@@ -25,7 +65,7 @@ def main():
     project = args.project.resolve()
     if not project.is_dir():
         parser.error('프로젝트 폴더가 없습니다.')
-    directory = args.state_dir or Path.home() / '.local' / 'share' / 'todo-list' / hashlib.sha256(str(project).encode()).hexdigest()[:16]
+    directory = resolve_state_dir(project,args.state_dir)
     directory.mkdir(parents=True, exist_ok=True)
     runtime = directory / 'runtime.json'
     if args.command != 'serve':

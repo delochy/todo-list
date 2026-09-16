@@ -38,7 +38,7 @@ A complete verdict requires every criterion to pass with evidence, no outstandin
 
 ## Persistence
 
-State defaults to `~/.local/share/todo-list/<project-hash>/`. `--state-dir <directory>` explicitly overrides it, including for migration from an older board. Use the same override for serve/add/status/list. Do not commit state, runtime tokens, reviewer logs or user artifacts. An interrupted review becomes an error on restart and can be requested again. Stop the server session before updating the installed skill.
+Boards are registered by Git common directory (or resolved folder for non-Git projects). Linked worktrees and subfolders of the same repository reopen the same board and running server. The registry is under `~/.local/share/todo-list/projects/`. `--state-dir <directory>` explicitly overrides it, including for migration from an older board. The explicit directory is registered once; subsequent serve/add/status/list calls can omit it. Never invent a new state directory per chat. If a registered board is missing, restore it rather than creating an empty replacement. Sharing a board does not change its review source checkout; use project settings explicitly when needed. Do not commit state, runtime tokens, reviewer logs or user artifacts. An interrupted review becomes an error on restart and can be requested again. Stop the server session before updating the installed skill.
 
 ## Language
 

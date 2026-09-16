@@ -143,6 +143,7 @@ class Board:
             if t.get('review') in ('running', 'queued'):
                 t.update(review='error', message='이전 실행이 중단되었습니다. 다시 검수해 주세요.')
         self.project = Path(self.data.get('project', str(self.project))).resolve()
+        self.data['project'] = str(self.project)
         self.data['version'] = 1
         self.stopping = False
         self.save()
