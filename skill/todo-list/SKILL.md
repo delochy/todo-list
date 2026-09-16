@@ -47,3 +47,5 @@ English and Korean are supported. The browser selects Korean for Korean locales 
 ## Environment recovery
 
 Blocked reviews offer a preparation dialog with read-only Android/iOS device inventory, platform editing, and user environment details passed to retry. Newly requested reviews that become blocked open the dialog while the page remains active. Device presence does not prove UI control permission. Do not infer missing devices from the desktop app list alone. Never claim the panel grants OS permissions or boots devices: the user prepares the environment and approves device prompts.
+
+Live workers use Codex `exec --approve-for-me` to route tool approval requests through automatic review while retaining the workspace-write sandbox. They must not use `-a never` for interactive device checks or bypass approvals. A reviewer rejection remains blocked with its reason. This requires a CLI version supporting `--approve-for-me`.

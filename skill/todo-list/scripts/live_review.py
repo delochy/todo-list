@@ -50,6 +50,7 @@ def extend_schema(spec, platforms):
 
 def live_prompt(task, project, run_dir, language):
     return f'''Perform a REAL UI review on exactly these platforms: {', '.join(task.get('platforms',['android','ios']))}. Respond in {language}.
+The user requested this live review, including opening the target local test app and non-destructive navigation needed for the criteria. Requests needing additional approval must go through the configured approval reviewer; never bypass a denial. This does not authorize account deletion, payments, installs, credential entry or unrelated apps.
 Task notes: {task.get('note','')}
 Task: {json.dumps({k:task[k] for k in ('title','criteria','paths')},ensure_ascii=False)}
 Source project: {project}

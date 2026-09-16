@@ -117,3 +117,5 @@ The local Web smoke check opened the running app and inspected its language menu
 ### Android screen access
 
 Mobile reviews require a device-control MCP, not just a connected USB device. Configure [Mobile MCP](https://github.com/mobile-next/mobile-mcp) with `codex mcp add mobile-mcp -- npx -y @mobilenext/mobile-mcp@1.0.4`, with your Android SDK and Node executable available in its environment. The preparation dialog disables retry when no supported mobile MCP is configured. Configuration presence is not a live health check; the reviewer still validates screen access and screenshot capture.
+
+Live review requires a Codex CLI version supporting `exec --approve-for-me`. Tool actions go through automatic approval review; review requests do not grant blanket permission for destructive actions. Read-only artifact review retains `-a never`.

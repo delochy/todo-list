@@ -384,7 +384,7 @@ class Board:
                 t['deviceInventory']=device_inventory()
                 prompt=live_prompt(t,self.project,run_dir,language_name(t.get('language','ko')))
                 ui_args,runner_env=ui_config_args(executable)
-                cmd=[executable,*ui_args,'-a','never','exec','--ignore-user-config','--sandbox','workspace-write','--add-dir',str(run_dir),'--skip-git-repo-check','--ephemeral','--json','-C',str(self.project),'--output-schema',str(schema_path),'-o',str(output)]
+                cmd=[executable,*ui_args,'exec','--approve-for-me','--ignore-user-config','--add-dir',str(run_dir),'--skip-git-repo-check','--ephemeral','--json','-C',str(self.project),'--output-schema',str(schema_path),'-o',str(output)]
             for name in [x for x in t['paths'] if Path(x).suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp')][:5]:
                 cmd += ['-i', str(self.project / name)]
             cmd += ['-']
