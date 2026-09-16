@@ -22,7 +22,7 @@ async function boot() {
 }
 
 const $ = id => document.getElementById(id);
-const token = document.querySelector('meta[name="board-token"]').content;
+let token = document.querySelector('meta[name="board-token"]').content;
 const getLabels = () => ({todo:tr('할 일'),doing:tr('작업 중'),done:tr('작업 완료'),pending:tr('미검수'),queued:tr('검수 대기'),running:tr('검수 중'),complete:tr('검수 완료'),changes:tr('수정 필요'),blocked:tr('확인 불가'),error:tr('실행 오류'),stale:tr('재검수 필요')});
 const getFilterNames = () => ({all:tr('전체'),ready:tr('검수 대기'),attention:tr('확인 필요'),complete:tr('검수 완료'),notes:tr('아이디어')});
 const requestedReviews=new Set();
@@ -38,13 +38,19 @@ function el(tag, text, cls) {
   if (cls) node.className = cls;
   return node;
 }
-async function api(route, data) {
-  const response = await fetch('/api/' + route, {
+async function api(route, data, refreshed=false) {
+  let response;
+  try { response = await fetch('/api/' + route, {
     method:data === undefined ? 'GET' : 'POST',
     headers:{'X-Board-Token':token,'Content-Type':'application/json','X-Board-Language':locale},
     body:data === undefined ? undefined : JSON.stringify(data),
     signal:AbortSignal.timeout(route==='environment'?25000:15000)
   });
+  } catch(error) { throw Error(tr('서버 연결이 끊겼습니다. 입력 내용은 유지됩니다. 서버가 연결되면 저장을 다시 눌러주세요.')); }
+  if(response.status===403&&!refreshed){
+    const page=await fetch('/',{cache:'no-store'});
+    if(page.ok){const html=new DOMParser().parseFromString(await page.text(),'text/html');const next=html.querySelector('meta[name=board-token]')?.content;if(next){token=next;return api(route,data,true);}}
+  }
   const result = await response.json();
   if (!response.ok) throw Error(result.error || tr('요청에 실패했습니다.'));
   return result;
